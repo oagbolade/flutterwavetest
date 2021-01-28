@@ -1,7 +1,10 @@
+var _ = require("lodash");
+
 const checkKeyExists = (object, key, layerNumber) => {
   if (layerNumber === 2) {
     let firstKeyExists = object.hasOwnProperty(key[0]);
-    let secondKeyExists = object.hasOwnProperty(key[1]);
+    let getSecondLayer = _.get(object, `${key[0]}`);
+    let secondKeyExists = getSecondLayer.hasOwnProperty(key[1]);
 
     return !firstKeyExists || !secondKeyExists ? false : true;
   }
@@ -49,4 +52,8 @@ const isArray = function (a) {
   return !!a && a.constructor === Array;
 };
 
-module.exports = { checkKeyExists, checkRequiredField, checkFieldType };
+module.exports = {
+  checkKeyExists,
+  checkRequiredField,
+  checkFieldType,
+};

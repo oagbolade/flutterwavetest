@@ -6,6 +6,10 @@ const {
   checkFieldType,
 } = require("../../validation-functions/checks");
 
+const {
+  handleValidation,
+} = require("../../validation-functions/validateRules");
+
 router.post("/", (req, res) => {
   const bodyLayer = req.body;
   const dataLayer = req.body.data;
@@ -36,7 +40,7 @@ router.post("/", (req, res) => {
 
   if (!checkFieldType(bodyLayer, "rule")) {
     res.status(400).send({
-      message: `rule field should be a JSON Object`,
+      message: "rule should be an object.",
       status: "error",
       data: null,
     });
@@ -53,35 +57,54 @@ router.post("/", (req, res) => {
   const fieldLayer = req.body.rule.field;
   let splitLayer = fieldLayer.split(".");
 
-  if (splitLayer.length == 2) {
-    const layerNumber = 2;
-    if (!checkKeyExists(dataLayer, splitLayer, layerNumber)) {
-      res.status(400).send({
-        message: `${splitLayer.join(".")} is required.`,
-        status: "error",
-        data: null,
-      });
+    if (splitLayer.length == 2) {
+      const layerNumber = 2;
+      if (!checkKeyExists(dataLayer, splitLayer, layerNumber)) {
+        res.status(400).send({
+          message: `field ${splitLayer.join(".")} is missing from data.`,
+          status: "error",
+          data: null,
+        });
+      }
     }
-  }
 
   if (splitLayer.length == 1) {
     const layerNumber = 1;
     if (!checkKeyExists(dataLayer, splitLayer, layerNumber)) {
       res.status(400).send({
-        message: `${splitLayer.join(".")} is required.`,
+        message: `field ${splitLayer.join(".")} is missing from data.`,
         status: "error",
         data: null,
       });
     }
   }
 
+  if (!handleValidation(bodyLayer).validationPassed) {
+    res.status(400).send({
+      message: `field ${
+        handleValidation(bodyLayer).ruleName
+      } failed validation.`,
+      status: "error",
+      data: {
+        validation: {
+          error: false,
+          field: `${handleValidation(bodyLayer).ruleName}`,
+          field_value: `${handleValidation(bodyLayer).fieldValue}`,
+          condition: `${handleValidation(bodyLayer).condition}`,
+          condition_value: `${handleValidation(bodyLayer).conditionValue}`,
+        },
+      },
+    });
+  }
+
+  const fieldName = splitLayer.join(".");
   res.status(200).send({
-    message: "field [name of field] successfully validated.",
+    message: `field ${fieldName} successfully validated.`,
     status: "success",
     data: {
       validation: {
         error: false,
-        field: "[name of field]",
+        field: `${fieldName}`,
         field_value: "[value of field]",
         condition: "[rule condition]",
         condition_value: "[condition value]",
