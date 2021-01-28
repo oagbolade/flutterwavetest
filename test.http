@@ -1,0 +1,18 @@
+POST http://localhost:3000/validate-rule HTTP/1.1
+content-type: application/json
+
+{
+  "rule": {
+    "field": "missions.second2",
+    "condition": "gte",
+    "condition_value": 30
+  },
+  "data": {
+    "name": "James Holden",
+    "crew": "Rocinante",
+    "age": 34,
+    "position": "Captain",
+    "missions": 45,
+    "second2": 100,
+  }
+}
