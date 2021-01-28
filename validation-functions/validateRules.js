@@ -21,7 +21,26 @@ const handleValidation = function (bodyLayer) {
         validationPassed = true;
       }
       break;
-
+    case "neq":
+      if (conditionValue != fieldValue) {
+        validationPassed = true;
+      }
+      break;
+    case "gt":
+      if (fieldValue > conditionValue) {
+        validationPassed = true;
+      }
+      break;
+    case "gte":
+      if (fieldValue >= conditionValue) {
+        validationPassed = true;
+      }
+      break;
+    case "contains":
+      if (fieldValue.toString().includes(conditionValue.toString())) {
+        validationPassed = true;
+      }
+      break;
     default:
       validationPassed = false;
       break;
