@@ -76,8 +76,17 @@ router.post("/", (req, res) => {
   }
 
   res.status(200).send({
-    success: "true",
-    message: "Confirmed",
+    message: "field [name of field] successfully validated.",
+    status: "success",
+    data: {
+      validation: {
+        error: false,
+        field: "[name of field]",
+        field_value: "[value of field]",
+        condition: "[rule condition]",
+        condition_value: "[condition value]",
+      },
+    },
   });
 });
 
