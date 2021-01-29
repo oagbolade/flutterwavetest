@@ -1,3 +1,4 @@
+var _ = require("lodash");
 const express = require("express");
 const router = express.Router();
 const {
@@ -13,6 +14,7 @@ const {
 router.post("/", (req, res) => {
   const bodyLayer = req.body;
   const dataLayer = req.body.data;
+  let fieldValue = null;
 
   if (!checkFieldType(bodyLayer, "body")) {
     res.status(400).send({
@@ -57,16 +59,16 @@ router.post("/", (req, res) => {
   const fieldLayer = req.body.rule.field;
   let splitLayer = fieldLayer.split(".");
 
-    if (splitLayer.length == 2) {
-      const layerNumber = 2;
-      if (!checkKeyExists(dataLayer, splitLayer, layerNumber)) {
-        res.status(400).send({
-          message: `field ${splitLayer.join(".")} is missing from data.`,
-          status: "error",
-          data: null,
-        });
-      }
+  if (splitLayer.length == 2) {
+    const layerNumber = 2;
+    if (!checkKeyExists(dataLayer, splitLayer, layerNumber)) {
+      res.status(400).send({
+        message: `field ${splitLayer.join(".")} is missing from data.`,
+        status: "error",
+        data: null,
+      });
     }
+  }
 
   if (splitLayer.length == 1) {
     const layerNumber = 1;
@@ -98,6 +100,12 @@ router.post("/", (req, res) => {
   }
 
   const fieldName = splitLayer.join(".");
+  //   const fieldValue = bodyLayer.rule;
+  const conditionValue = bodyLayer.rule.condition_value;
+  const condition = bodyLayer.rule.condition;
+  //   let getSecondLayer = _.get(object, `${key[0]}`);
+
+  // format success vailidation properly for value of field
   res.status(200).send({
     message: `field ${fieldName} successfully validated.`,
     status: "success",
@@ -106,8 +114,8 @@ router.post("/", (req, res) => {
         error: false,
         field: `${fieldName}`,
         field_value: "[value of field]",
-        condition: "[rule condition]",
-        condition_value: "[condition value]",
+        condition: `${condition}`,
+        condition_value: `${conditionValue}`,
       },
     },
   });
