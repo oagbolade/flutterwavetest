@@ -30,6 +30,11 @@ const checkRequiredField = (object, fieldName) => {
 };
 
 const checkFieldType = (object, fieldName) => {
+  if (fieldName == "body") {
+    let isObject = isLiteralObject(object);
+    return !isObject ? false : true;
+  }
+
   if (fieldName == "rule") {
     let isObject = isLiteralObject(object[fieldName]);
     return !isObject ? false : true;
