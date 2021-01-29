@@ -1,4 +1,5 @@
 var _ = require("lodash");
+const { includes } = require("lodash");
 
 const checkKeyExists = (object, key, layerNumber) => {
   if (layerNumber === 2) {
@@ -17,16 +18,18 @@ const checkKeyExists = (object, key, layerNumber) => {
 };
 
 const checkRequiredField = (object, fieldName) => {
-  let KeyExists = object.hasOwnProperty(fieldName);
+  if (fieldName.includes("rule.")) {
+    const getSecondLayer = object.rule;
+    const splitFieldName = fieldName.split(".");
+    const KeyExists = getSecondLayer.hasOwnProperty(`${splitFieldName[1]}`);
+    return !KeyExists ? false : true;
+  }
+
+  let KeyExists = object.hasOwnProperty(`${fieldName}`);
   return !KeyExists ? false : true;
 };
 
 const checkFieldType = (object, fieldName) => {
-  if (fieldName == "body") {
-    let isObject = isLiteralObject(object);
-    return !isObject ? false : true;
-  }
-
   if (fieldName == "rule") {
     let isObject = isLiteralObject(object[fieldName]);
     return !isObject ? false : true;
