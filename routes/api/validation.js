@@ -14,9 +14,18 @@ const {
 router.post("/", (req, res) => {
   const bodyLayer = req.body;
   const dataLayer = req.body.data;
-  let fieldValue = null;
+  let getFieldValue = null;
+  const requiredFields = [
+    "rule",
+    "data",
+    "rule.field",
+    "rule.condition",
+    "rule.condition_value",
+  ];
 
-  if (!checkFieldType(bodyLayer, "body")) {
+  try {
+    JSON.parse(req.body);
+  } catch (e) {
     res.status(400).send({
       message: `Invalid JSON payload passed.`,
       status: "error",
@@ -24,21 +33,15 @@ router.post("/", (req, res) => {
     });
   }
 
-  if (!checkRequiredField(bodyLayer, "rule")) {
-    res.status(400).send({
-      message: `rule is required.`,
-      status: "error",
-      data: null,
-    });
-  }
-
-  if (!checkRequiredField(bodyLayer, "data")) {
-    res.status(400).send({
-      message: `data is required.`,
-      status: "error",
-      data: null,
-    });
-  }
+  requiredFields.forEach((eachField) => {
+    if (!checkRequiredField(bodyLayer, eachField)) {
+      res.status(400).send({
+        message: `${eachField} is required.`,
+        status: "error",
+        data: null,
+      });
+    }
+  });
 
   if (!checkFieldType(bodyLayer, "rule")) {
     res.status(400).send({
@@ -68,6 +71,8 @@ router.post("/", (req, res) => {
         data: null,
       });
     }
+
+    getFieldValue = _.get(dataLayer, `${splitLayer[0]}.${splitLayer[1]}`);
   }
 
   if (splitLayer.length == 1) {
@@ -79,6 +84,7 @@ router.post("/", (req, res) => {
         data: null,
       });
     }
+    getFieldValue = _.get(dataLayer, `${splitLayer[0]}`);
   }
 
   if (!handleValidation(bodyLayer).validationPassed) {
@@ -89,7 +95,7 @@ router.post("/", (req, res) => {
       status: "error",
       data: {
         validation: {
-          error: false,
+          error: true,
           field: `${handleValidation(bodyLayer).ruleName}`,
           field_value: `${handleValidation(bodyLayer).fieldValue}`,
           condition: `${handleValidation(bodyLayer).condition}`,
@@ -100,12 +106,9 @@ router.post("/", (req, res) => {
   }
 
   const fieldName = splitLayer.join(".");
-  //   const fieldValue = bodyLayer.rule;
   const conditionValue = bodyLayer.rule.condition_value;
   const condition = bodyLayer.rule.condition;
-  //   let getSecondLayer = _.get(object, `${key[0]}`);
 
-  // format success vailidation properly for value of field
   res.status(200).send({
     message: `field ${fieldName} successfully validated.`,
     status: "success",
@@ -113,7 +116,7 @@ router.post("/", (req, res) => {
       validation: {
         error: false,
         field: `${fieldName}`,
-        field_value: "[value of field]",
+        field_value: `${getFieldValue}`,
         condition: `${condition}`,
         condition_value: `${conditionValue}`,
       },
