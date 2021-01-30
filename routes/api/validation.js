@@ -23,6 +23,14 @@ router.post("/", (req, res) => {
     "rule.condition_value",
   ];
 
+  if (!checkFieldType(bodyLayer, "body")) {
+    res.status(400).send({
+      message: `Invalid JSON payload passed.`,
+      status: "error",
+      data: null,
+    });
+  }
+
   requiredFields.forEach((eachField) => {
     if (!checkRequiredField(bodyLayer, eachField)) {
       res.status(400).send({
@@ -31,14 +39,7 @@ router.post("/", (req, res) => {
         data: null,
       });
     }
-
-  if (!checkFieldType(bodyLayer, "body")) {
-    res.status(400).send({
-      message: `Invalid JSON payload passed.`,
-      status: "error",
-      data: null,
-    });
-  }
+  });
 
   if (!checkFieldType(bodyLayer, "rule")) {
     res.status(400).send({
